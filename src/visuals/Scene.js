@@ -13,9 +13,9 @@ export class Scene {
     this.preset = getPreset(presetName)
     this.controls = controls
     
-    // Get canvas dimensions
-    const width = canvas.clientWidth || canvas.width || 800
-    const height = canvas.clientHeight || canvas.height || 600
+    // Get canvas dimensions - use actual canvas width/height if set, otherwise fallback
+    const width = canvas.width || canvas.clientWidth || window.innerWidth || 800
+    const height = canvas.height || canvas.clientHeight || window.innerHeight || 600
     
     // Scene setup
     this.scene = new THREE.Scene()
@@ -35,20 +35,28 @@ export class Scene {
     this.renderer.setSize(width, height, false)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     
-    // Post-processing
-    this.composer = new EffectComposer(this.renderer, {
-      multisampling: 4,
-    })
-    
-    const renderPass = new RenderPass(this.scene, this.camera)
-    this.composer.addPass(renderPass)
-    
-    this.bloomEffect = new BloomEffect({
-      intensity: controls.bloom || 0.75,
-      luminanceThreshold: 0.4,
-      luminanceSmoothing: 0.9,
-    })
-    this.composer.addEffect(this.bloomEffect)
+    // Post-processing - wrap in try-catch in case postprocessing fails
+    try {
+      this.composer = new EffectComposer(this.renderer, {
+        multisampling: 4,
+      })
+      
+      const renderPass = new RenderPass(this.scene, this.camera)
+      this.composer.addPass(renderPass)
+      
+      this.bloomEffect = new BloomEffect({
+        intensity: controls.bloom || 0.75,
+        luminanceThreshold: 0.4,
+        luminanceSmoothing: 0.9,
+      })
+      this.composer.addEffect(this.bloomEffect)
+      this.useComposer = true
+    } catch (error) {
+      console.warn('Post-processing not available, using direct renderer:', error)
+      this.useComposer = false
+      this.composer = null
+      this.bloomEffect = null
+    }
     
     // Visual elements
     this.bars = new Bars(this.scene, this.preset)
@@ -62,7 +70,11 @@ export class Scene {
 
   animate() {
     this.animationId = requestAnimationFrame(this.animate)
-    this.composer.render()
+    if (this.useComposer && this.composer) {
+      this.composer.render()
+    } else {
+      this.renderer.render(this.scene, this.camera)
+    }
   }
 
   update(features, controls) {

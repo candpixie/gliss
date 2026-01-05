@@ -11,37 +11,54 @@ const Visualizer = ({ analyser, preset, controls }) => {
     if (!canvasRef.current || !analyser) return
 
     const canvas = canvasRef.current
-    const rect = canvas.getBoundingClientRect()
-    canvas.width = rect.width
-    canvas.height = rect.height
+    
+    // Wait for next frame to ensure canvas is properly sized
+    const initScene = () => {
+      const rect = canvas.getBoundingClientRect()
+      const width = rect.width || window.innerWidth
+      const height = rect.height || window.innerHeight
+      
+      // Set canvas dimensions explicitly
+      canvas.width = width
+      canvas.height = height
 
-    const scene = new Scene(canvas, preset, controls)
-    sceneRef.current = scene
+      try {
+        const scene = new Scene(canvas, preset, controls)
+        sceneRef.current = scene
 
-    const frequencyData = new Float32Array(analyser.frequencyBinCount)
-    const timeData = new Float32Array(analyser.fftSize)
+        const frequencyData = new Float32Array(analyser.frequencyBinCount)
+        const timeData = new Float32Array(analyser.fftSize)
 
-    const animate = () => {
-      if (!analyser || !sceneRef.current) return
+        const animate = () => {
+          if (!analyser || !sceneRef.current) return
 
-      analyser.getFloatFrequencyData(frequencyData)
-      analyser.getFloatTimeDomainData(timeData)
+          analyser.getFloatFrequencyData(frequencyData)
+          analyser.getFloatTimeDomainData(timeData)
 
-      const features = extractFeatures(frequencyData, timeData)
-      sceneRef.current.update(features, controls)
+          const features = extractFeatures(frequencyData, timeData)
+          sceneRef.current.update(features, controls)
 
-      animationFrameRef.current = requestAnimationFrame(animate)
+          animationFrameRef.current = requestAnimationFrame(animate)
+        }
+
+        animate()
+      } catch (error) {
+        console.error('Error initializing scene:', error)
+      }
     }
 
-    animate()
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(initScene)
 
     // Handle resize
     const handleResize = () => {
       if (canvas && sceneRef.current) {
         const rect = canvas.getBoundingClientRect()
-        canvas.width = rect.width
-        canvas.height = rect.height
-        sceneRef.current.resize(rect.width, rect.height)
+        const width = rect.width || window.innerWidth
+        const height = rect.height || window.innerHeight
+        canvas.width = width
+        canvas.height = height
+        sceneRef.current.resize(width, height)
       }
     }
 

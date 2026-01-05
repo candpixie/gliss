@@ -102,7 +102,7 @@ function App() {
             </svg>
           </div>
           <span className="font-black tracking-tight text-white text-xl">
-            NEON <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">RV443</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Neon Visualizer</span>
           </span>
         </div>
 

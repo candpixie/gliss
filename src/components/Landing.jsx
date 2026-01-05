@@ -51,7 +51,7 @@ const Landing = ({ onStart }) => {
           {/* Title */}
           <div className="space-y-3">
             <h1 className="text-4xl font-black tracking-tight text-white">
-              NEON <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400">RV443</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400">Neon Visualizer</span>
             </h1>
             <p className="text-violet-300/70 text-lg font-light">
               Turn your playing into live neon visuals.
@@ -125,7 +125,7 @@ const Landing = ({ onStart }) => {
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Microphone Access Required</h3>
                 <p className="text-sm text-violet-300/60 leading-relaxed">
-                  NEON RV443 needs microphone access to visualize your audio in real-time.
+                  Neon Visualizer needs microphone access to visualize your audio in real-time.
                   Your audio is never recorded or sent anywhere.
                 </p>
               </div>
