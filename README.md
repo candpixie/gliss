@@ -257,6 +257,4 @@ MIT
 ---
 
 ## Acknowledgments
-
-- Inspired by RV 443 (Vivaldi's Recorder Concerto in C Major)
-- Built for live classical performance visualization
+- Built for live classical performance and instrumental visualization
