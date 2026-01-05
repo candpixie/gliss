@@ -17,12 +17,12 @@ FFT-Visualizer captures audio (mic or file), analyzes it using Fast Fourier Tran
 
 ## Features
 
-- 🎤 **Live mic input** — real-time audio capture
-- 📁 **File upload** — visualize any audio file
-- 🎨 **Preset themes** — Neon Spectrum, Aurora Ribbons, Cyber Rosette
-- 🎛️ **Adjustable controls** — sensitivity, bloom, trail length, particle density
-- 🎬 **Video export** — record and download as WebM
-- 📱 **Mobile support** — responsive viewer mode
+-  **Live mic input** — real-time audio capture
+-  **File upload** — visualize any audio file
+-  **Preset themes** — Neon Spectrum, Aurora Ribbons, Cyber Rosette
+-  **Adjustable controls** — sensitivity, bloom, trail length, particle density
+-  **Video export** — record and download as WebM
+-  **Mobile support** — responsive viewer mode
 
 ---
 
