@@ -11,7 +11,6 @@ Real-time audio visualizer that turns live performance into neon visuals.
 
 FFT-Visualizer captures audio (mic or file), analyzes it using Fast Fourier Transform, and renders synchronized neon visuals in real-time. Built for musical performance, optimized for recorder/classical instruments but works with any audio source. Colour can be changed depending on the theme of song and artist.
 
-**No backend for now. No accounts. Runs entirely in your browser.**
 
 ---
 
