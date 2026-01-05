@@ -9,7 +9,7 @@ Real-time audio visualizer that turns live performance into neon visuals.
 
 ## Overview
 
-FFT-Visualizer captures audio (mic or file), analyzes it using Fast Fourier Transform, and renders synchronized neon visuals in real-time. Built for musical performance — optimized for recorder/classical instruments but works with any audio source.
+FFT-Visualizer captures audio (mic or file), analyzes it using Fast Fourier Transform, and renders synchronized neon visuals in real-time. Built for musical performance — optimized for recorder/classical instruments but works with any audio source. Colour can be changed depending on the theme of song and artist.
 
 **No backend. No accounts. Runs entirely in your browser.**
 
@@ -46,17 +46,17 @@ FFT-Visualizer captures audio (mic or file), analyzes it using Fast Fourier Tran
 │                        BROWSER (Client-side)                    │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐  │
-│  │ Audio Input  │───▶│ DSP Layer    │───▶│ Feature Vector   │  │
-│  │ (Mic/File)   │    │ (FFT)        │    │ {rms, centroid,  │  │
-│  └──────────────┘    └──────────────┘    │  flux, bands}    │  │
-│                                          └────────┬─────────┘  │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
+│  │ Audio Input  │───▶│ DSP Layer    │───▶│ Feature Vector   │   │
+│  │ (Mic/File)   │    │ (FFT)        │    │ {rms, centroid,  │   │
+│  └──────────────┘    └──────────────┘    │  flux, bands}    │   │
+│                                          └────────┬─────────┘   │
 │                                                   │             │
 │                                                   ▼             │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐  │
-│  │ Video Export │◀───│ Render Layer │◀───│ Mapping Layer    │  │
-│  │ (WebM)       │    │ (Three.js)   │    │ (Art Direction)  │  │
-│  └──────────────┘    └──────────────┘    └──────────────────┘  │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐   │
+│  │ Video Export │◀───│ Render Layer │◀───│ Mapping Layer    │   │
+│  │ (WebM)       │    │ (Three.js)   │    │ (Art Direction)  │   │
+│  └──────────────┘    └──────────────┘    └──────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
