@@ -108,22 +108,17 @@ Out (deferred to v2 or later):
 - **Vibrato:** Build on top of `pitchy` output. Detect 4–8 Hz periodicity in the f0 time series via short-time autocorrelation or sliding FFT on the f0 trajectory. AM depth = peak-to-peak amplitude envelope variation at the same rate.
 - **Three.js / postprocessing:** Already in `package.json`. `ShaderMaterial` for caustics / shards / aurora ribbons.
 
-## 5c. Visual references (`docs/refs/` — Lane B's design anchors)
+## 5c. Visual sources (open-source shaders to fork)
 
-Save screenshots / GIF stills of these into `docs/refs/` before Lane B starts:
+Lane B forks existing shaders rather than writing GLSL from scratch. Each preset has one canonical source. License attribution lands in the README's Acknowledgments section.
 
-- **Glacier inspiration:**
-  - Shadertoy "Frozen Lake" — https://www.shadertoy.com/view/MsXyzN
-  - Shadertoy "Curious Crystal" — https://www.shadertoy.com/view/slccDX
-- **Tide / water caustics:**
-  - Evan Wallace WebGL Water — https://madebyevan.com/webgl-water/
-  - Martin Renou caustics article — https://medium.com/@martinRenou/real-time-rendering-of-water-caustics-59cda1d74aa
-- **Aurora:**
-  - Shadertoy "Auroras" — https://www.shadertoy.com/view/XtGGRt
-  - Codrops audio-reactive shader tutorial — https://tympanus.net/codrops/2023/02/07/audio-reactive-shaders-with-three-js-and-shader-park/
-- **Anti-references (do NOT look like):**
-  - ButterChurn live demo (kaleidoscopic Milkdrop) — https://butterchurnviz.com/
-  - The current `Bars.js` output running on `localhost:5175` (neon-purple bars)
+- **Glacier:** Shadertoy *Curious Crystal* (https://www.shadertoy.com/view/slccDX) — scattering media inside refractive substance, palette swapped to cold teal/frost.
+- **Tide:** Evan Wallace's WebGL Water (https://madebyevan.com/webgl-water/, MIT) — caustics + ripple math, replace click-input with audio-driven ripple sources.
+- **Aurora:** Shadertoy *Auroras* (https://www.shadertoy.com/view/XtGGRt) — already a flowing aurora; strip warm hues for the cool palette and add a star background.
+
+Anti-reference (do NOT look like): ButterChurn live demo (https://butterchurnviz.com/) — kaleidoscopic Milkdrop preset density, hot saturated palette. Gliss is the opposite axis.
+
+Shadertoy default license is CC BY-NC-SA 3.0; check each source's actual license tag before merging Lane B.
 
 ## 6. File ownership (Conductor lanes)
 
