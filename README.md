@@ -1,4 +1,4 @@
-# Tideglass
+# Gliss
 
 A browser music visualizer for acoustic instruments. Tracks pitch and vibrato, knows the difference between a sustained note and a breath attack.
 
@@ -15,7 +15,7 @@ A browser music visualizer for acoustic instruments. Tracks pitch and vibrato, k
 
 ButterChurn descends from Milkdrop, the late-90s Winamp plugin. It looks great with EDM bass drops and synth pads. On a sustained recorder note or a violin tremolo it tends to fall flat, because it can't tell "vibrato at 5 Hz" apart from "loud part of the song."
 
-Tideglass is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack is. The visuals respond to that, not just to amplitude.
+Gliss is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack is. The visuals respond to that, not just to amplitude.
 
 ## Tech
 

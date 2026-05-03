@@ -149,7 +149,7 @@ Owns: `src/visuals/Scene.js`, `src/visuals/Bloom.js`, **new:** `src/visuals/Glac
 Owns: `src/components/Landing.jsx`, `src/components/Controls.jsx`, `src/components/Transport.jsx`, `src/components/Visualizer.jsx`, `src/index.css`, `src/App.jsx` (chrome only), `src/presets/index.js`, `tailwind.config.js`, `index.html` (title)
 - Strip all violet/fuchsia/pink/cyber-neon styling
 - New cold palette tokens, used consistently across Landing / Controls / Transport / top bar
-- Rename brand from "Neon Visualizer" → final name (TBD; placeholder: "Tideglass")
+- Rename brand from "Neon Visualizer" to **Gliss** (sheet-music abbreviation for *glissando*)
 - Update preset selector to: Glacier / Tide / Aurora
 - Add a small instrument-hint indicator (e.g. "vibrato detected: 5.2 Hz, ±35 cents") as a non-intrusive overlay
 - Must NOT touch any file under `src/audio/` or `src/visuals/`

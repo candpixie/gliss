@@ -59,7 +59,7 @@ const Landing = ({ onStart }) => {
           {/* Title */}
           <div className="space-y-3">
             <h1 className="text-5xl font-light tracking-tight text-text-primary">
-              Tideglass
+              Gliss
             </h1>
             <p className="text-text-muted text-base font-light">
               An audio visualizer that listens like a musician.
@@ -132,7 +132,7 @@ const Landing = ({ onStart }) => {
               <div>
                 <h3 className="text-xl font-medium text-text-primary mb-2">Microphone access</h3>
                 <p className="text-sm text-text-muted leading-relaxed">
-                  Tideglass listens locally to track pitch, vibrato, and harmonics.
+                  Gliss listens locally to track pitch, vibrato, and harmonics.
                   Audio never leaves your device.
                 </p>
               </div>

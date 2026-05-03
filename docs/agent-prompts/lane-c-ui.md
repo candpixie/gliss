@@ -22,7 +22,7 @@ Do NOT touch `src/audio/` or `src/visuals/`.
    - `text.primary`: `#e8eef5`, `text.muted`: `#8a99ab`, `text.dim`: `#5a6878`
    - Border default: `rgba(255,255,255,0.06)`, focus ring: `rgba(142,184,201,0.4)`
 
-3. **Brand rename.** "Neon Visualizer" / "RV443" / "NEON RV443" → all gone. Placeholder name: **Tideglass**. Update top bar, `<title>`, Landing copy.
+3. **Brand rename.** "Neon Visualizer" / "RV443" / "NEON RV443" → all gone. Placeholder name: **Gliss**. Update top bar, `<title>`, Landing copy.
 
 4. **Preset selector** options renamed: Glacier / Tide / Aurora. Update `src/presets/index.js` to match (preserve the `getPreset(name)` and `getPresetNames()` exports — Lane B depends on the shape).
 
@@ -33,7 +33,7 @@ Do NOT touch `src/audio/` or `src/visuals/`.
    When unvoiced or vibrato.active=false, fade out gracefully. Use the `text.muted` color, monospace font, small (12px), bottom-left padding 24px. This is a v1 differentiator — most visualizers don't show their understanding of the music.
 
 6. **Landing screen rewrite.** Current copy is generic. New copy along the lines of:
-   - Title: *Tideglass*
+   - Title: *Gliss*
    - Subtitle: "An audio visualizer that listens like a musician."
    - Two big buttons: "Use microphone" / "Upload a file"
    - Below: a one-line note "Best with monophonic instruments — recorder, flute, violin, voice."
@@ -53,4 +53,4 @@ Do NOT touch `src/audio/` or `src/visuals/`.
 - All three preset names appear in the selector and work end-to-end (relies on Lane B for the actual visuals).
 - No imports from `src/audio/` other than the existing AnalyserNode wiring already in `App.jsx` (do not refactor the audio plumbing).
 
-PR title: `feat(ui): cold-elemental theme, Tideglass rename, music-aware overlay`. Include a before/after screenshot of the Landing screen.
+PR title: `feat(ui): cold-elemental theme, Gliss rename, music-aware overlay`. Include a before/after screenshot of the Landing screen.
