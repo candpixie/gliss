@@ -2,8 +2,6 @@
 
 A browser music visualizer for acoustic instruments. Tracks pitch and vibrato, knows the difference between a sustained note and a breath attack.
 
-No install, no backend. Mic in, visuals out.
-
 ## What it does
 
 - Mic input or uploaded audio file
@@ -13,7 +11,7 @@ No install, no backend. Mic in, visuals out.
 - Three elemental visual presets: Glacier, Tide, Aurora
 - Records the canvas and audio to WebM
 
-## Why not ButterChurn
+## vs. ButterChurn
 
 ButterChurn descends from Milkdrop, the late-90s Winamp plugin. It looks great with EDM bass drops and synth pads. On a sustained recorder note or a violin tremolo it tends to fall flat, because it can't tell "vibrato at 5 Hz" apart from "loud part of the song."
 
