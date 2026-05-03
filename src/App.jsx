@@ -140,7 +140,8 @@ function App() {
       {/* Bottom Transport Bar */}
       <div className="absolute bottom-0 left-0 right-0 h-16 z-30">
         <Transport
-          onExport={() => {}}
+          audioContext={audioContext}
+          audioSource={audioSource}
         />
       </div>
     </div>
