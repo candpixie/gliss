@@ -1,59 +1,60 @@
 /**
- * Presets - Visual preset configurations
+ * Presets — cold-elemental v1 set.
+ * Each preset is consumed by the Three.js scene module of the same name.
+ * Lane B reads the `style` field to instantiate the matching scene.
  */
 
 export const presets = {
-  'Neon Spectrum': {
-    name: 'Neon Spectrum',
-    description: 'Classic frequency bars with bloom glow',
+  Glacier: {
+    name: 'Glacier',
+    description: 'Crystalline shards in a dark teal sea — pitch lights the cluster, vibrato shimmers.',
     colors: {
-      primary: '#8b5cf6', // violet-500
-      secondary: '#d946ef', // fuchsia-500
-      accent: '#a78bfa', // violet-400
+      primary: '#8eb8c9',   // accent.glacier — frost-blue
+      secondary: '#cfe1ea', // pale ice
+      accent: '#e8eef5',    // text.primary as rim-light
     },
-    hue: 270, // Purple base hue
-    bloom: 0.75,
-    style: 'bars',
+    hue: 200,
+    bloom: 0.55,
+    style: 'glacier',
   },
-  
-  'Aurora Ribbons': {
-    name: 'Aurora Ribbons',
-    description: 'Flowing ribbons controlled by spectral centroid',
+
+  Tide: {
+    name: 'Tide',
+    description: 'Reflective water surface with caustics — RMS swells, vibrato sets standing waves.',
     colors: {
-      primary: '#06b6d4', // cyan-500
-      secondary: '#8b5cf6', // violet-500
-      accent: '#ec4899', // pink-500
+      primary: '#5db5b9',   // accent.tide — glacier-teal
+      secondary: '#8eb8c9',
+      accent: '#cfe1ea',
     },
-    hue: 180, // Cyan base hue
-    bloom: 0.8,
-    style: 'ribbons',
+    hue: 190,
+    bloom: 0.5,
+    style: 'tide',
   },
-  
-  'Cyber Rosette': {
-    name: 'Cyber Rosette',
-    description: 'Radial visualization with onset-triggered rings',
+
+  Aurora: {
+    name: 'Aurora',
+    description: 'Borealis ribbons — pitch sets height, vibrato modulates waver and brightness.',
     colors: {
-      primary: '#f59e0b', // amber-500
-      secondary: '#ef4444', // red-500
-      accent: '#8b5cf6', // violet-500
+      primary: '#c8d9b4',   // accent.aurora — mint pale
+      secondary: '#8eb8c9',
+      accent: '#dccbd6',    // pale rose hint
     },
-    hue: 30, // Orange/amber base hue
-    bloom: 0.7,
-    style: 'radial',
+    hue: 150,
+    bloom: 0.65,
+    style: 'aurora',
   },
 }
 
 /**
- * Get preset by name
+ * Get preset by name. Falls back to Glacier when the name is unknown.
  */
 export function getPreset(name) {
-  return presets[name] || presets['Neon Spectrum']
+  return presets[name] || presets.Glacier
 }
 
 /**
- * Get all preset names
+ * Get all preset names in display order.
  */
 export function getPresetNames() {
   return Object.keys(presets)
 }
-
