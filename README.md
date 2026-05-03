@@ -34,6 +34,18 @@ Open the URL Vite prints, allow mic, play.
 
 Active development. v1 ships the three presets with mic input, file upload, and a 30-second WebM export. Polyphonic tracking and an embeddable widget are on the roadmap, not in v1.
 
+## Acknowledgments
+
+The three v1 visual presets are forks of open-source shaders. Each was ported to a Three.js `ShaderMaterial`, recolored to the cold palette, and rewired to read from the `AudioFrame` integration contract. Original authors below.
+
+| Preset  | Source                                                                 | Author        | License           |
+| ------- | ---------------------------------------------------------------------- | ------------- | ----------------- |
+| Glacier | [Curious Crystal](https://www.shadertoy.com/view/slccDX)               | mrange        | CC BY-NC-SA 3.0   |
+| Tide    | [WebGL Water](https://madebyevan.com/webgl-water/) ([source](https://github.com/evanw/webgl-water)) | Evan Wallace  | MIT               |
+| Aurora  | [Auroras](https://www.shadertoy.com/view/XtGGRt)                       | nimitz        | CC BY-NC-SA 3.0   |
+
+Two of the three sources are CC BY-NC-SA 3.0 (Shadertoy default). Gliss is non-commercial today; if commercial use is added later, those two presets need replacement or relicensing.
+
 ## License
 
-MIT.
+MIT (Gliss code). Forked shader sources retain their original licenses listed above.

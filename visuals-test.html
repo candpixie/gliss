@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Gliss visuals test harness</title>
+    <style>
+      html, body { margin: 0; padding: 0; background: #04060c; height: 100%; overflow: hidden; }
+      canvas { display: block; width: 100vw; height: 100vh; }
+      #label {
+        position: fixed; bottom: 12px; left: 12px;
+        font: 12px/1.2 -apple-system, system-ui, sans-serif;
+        color: #c8d9b4; opacity: 0.6; letter-spacing: 0.04em;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="label"></div>
+    <script type="module">
+      import { Scene } from '/src/visuals/Scene.js'
+      import { presets } from '/src/presets/index.js'
+
+      const canvas = document.getElementById('c')
+      const label = document.getElementById('label')
+      const params = new URLSearchParams(location.search)
+      const presetName = params.get('preset') || 'Glacier'
+      const t0Param = params.get('t0')
+      label.textContent = `preset: ${presetName} · synthetic AudioFrame (sustained tone + vibrato + onsets)`
+
+      function resize() {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+      }
+      resize()
+      window.addEventListener('resize', resize)
+
+      const preset = presets[presetName] || presets.Glacier
+      const scene = new Scene(canvas, preset, { bloom: preset.bloom })
+
+      // Synthetic AudioFrame: sustained pitched tone, slow drift, audible
+      // vibrato, occasional onsets every ~1.2s. Mimics what Lane A produces
+      // for a recorder/violin sustained note.
+      const t0 = t0Param ? parseFloat(t0Param) : performance.now() / 1000
+      function frameAt(now) {
+        const t = now - t0
+        // f0 drifts slowly between 220 and 660 Hz over 8 s
+        const driftPhase = (t % 8) / 8
+        const baseHz = 220 * Math.pow(3, 0.5 + 0.5 * Math.sin(driftPhase * Math.PI * 2))
+        // vibrato: 5.5 Hz, ±35 cents
+        const vibPhase = t * 5.5 * Math.PI * 2
+        const cents = 35 * Math.sin(vibPhase)
+        const f0 = baseHz * Math.pow(2, cents / 1200)
+        // attack onsets every ~1.2 s with exponential decay envelope
+        const onsetPhase = (t % 1.2) / 1.2
+        const flux = Math.exp(-onsetPhase * 8) * 0.9
+        const percussiveEnergy = Math.exp(-onsetPhase * 12) * 0.7
+        // smooth amplitude with small AM
+        const rms = 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(t * 0.6)) + 0.08 * Math.sin(vibPhase)
+        // bands: low fluctuates, mid follows pitch energy, high sparkles
+        const low = 0.4 + 0.3 * Math.sin(t * 0.4)
+        const mid = 0.5 + 0.3 * Math.sin(t * 0.7 + 1)
+        const high = 0.3 + 0.2 * (0.5 + 0.5 * Math.sin(t * 1.1)) + flux * 0.5
+        return {
+          rms: Math.max(0, Math.min(1, rms)),
+          centroid: 0.45 + 0.2 * Math.sin(t * 0.3),
+          flux,
+          bands: { low, mid, high },
+          fftMag: new Float32Array(1024),
+          f0,
+          f0Confidence: 0.92,
+          vibrato: {
+            active: true,
+            rateHz: 5.5,
+            extentCents: 35,
+            amDepth: 0.35,
+          },
+          harmonicEnergy: 0.55 + 0.15 * Math.sin(t * 0.5),
+          percussiveEnergy,
+          frequencyData: new Float32Array(1024),
+          timeData: new Float32Array(2048),
+        }
+      }
+
+      function tick() {
+        const now = performance.now() / 1000
+        scene.update(frameAt(now), { bloom: preset.bloom })
+        requestAnimationFrame(tick)
+      }
+      tick()
+
+      // expose for puppeteer-style external screenshot drivers
+      window.__glissReady = true
+    </script>
+  </body>
+</html>
