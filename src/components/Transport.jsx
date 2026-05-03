@@ -31,7 +31,7 @@ const Transport = ({ audioContext, audioSource }) => {
       return
     }
     try {
-      recorderRef.current?.download(`tideglass-${Date.now()}.webm`, blob)
+      recorderRef.current?.download(`gliss-${Date.now()}.webm`, blob)
       setStatus('ready')
       showToast('Recording saved')
     } catch (err) {
@@ -85,7 +85,7 @@ const Transport = ({ audioContext, audioSource }) => {
   const handleExport = () => {
     if (!recorderRef.current?.lastBlob) return
     try {
-      recorderRef.current.download(`tideglass-${Date.now()}.webm`)
+      recorderRef.current.download(`gliss-${Date.now()}.webm`)
       showToast('Recording saved')
     } catch (err) {
       setError(err.message || 'Download failed')

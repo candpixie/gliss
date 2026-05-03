@@ -104,7 +104,7 @@ function App() {
                 d="M12 3l3 5h-2v6h-2V8H9l3-5zm-7 12l3.5 6h11L23 15M5 15l-2 6h18" />
             </svg>
           </div>
-          <span className="font-light tracking-tight text-text-primary text-lg">Tideglass</span>
+          <span className="font-light tracking-tight text-text-primary text-lg">Gliss</span>
           <span className="text-text-dim text-xs tracking-wider uppercase ml-1 hidden sm:inline">
             {inputMode === 'mic' ? 'live' : 'file'}
           </span>

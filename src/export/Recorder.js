@@ -152,7 +152,7 @@ export class Recorder {
     return !!this.recorder && this.recorder.state === 'recording'
   }
 
-  download(filename = `tideglass-${Date.now()}.webm`, blob = this.lastBlob) {
+  download(filename = `gliss-${Date.now()}.webm`, blob = this.lastBlob) {
     if (!blob) throw new Error('Recorder.download: no blob to download')
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
