@@ -7,31 +7,36 @@ export default {
   theme: {
     extend: {
       colors: {
-        violet: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+        bg: {
+          deep: '#04060c',
+          surface: 'rgba(255,255,255,0.04)',
+          surfaceHover: 'rgba(255,255,255,0.08)',
         },
-        fuchsia: {
-          400: '#e879f9',
-          500: '#d946ef',
-          600: '#c026d3',
+        accent: {
+          glacier: '#8eb8c9',
+          tide: '#5db5b9',
+          aurora: '#c8d9b4',
+        },
+        text: {
+          primary: '#e8eef5',
+          muted: '#8a99ab',
+          dim: '#5a6878',
+        },
+        border: {
+          DEFAULT: 'rgba(255,255,255,0.06)',
         },
       },
+      ringColor: {
+        focus: 'rgba(142,184,201,0.4)',
+      },
       boxShadow: {
-        'glow': '0 0 20px rgba(168,85,247,0.4), 0 0 40px rgba(168,85,247,0.2)',
-        'glow-intense': '0 0 30px rgba(168,85,247,0.6), 0 0 60px rgba(168,85,247,0.3)',
-        'glow-subtle': '0 0 40px rgba(168,85,247,0.15)',
+        'frost': '0 8px 32px rgba(0,0,0,0.45)',
+        'frost-glow': '0 0 24px rgba(142,184,201,0.18)',
+      },
+      fontFamily: {
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
     },
   },
   plugins: [],
 }
-

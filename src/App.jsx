@@ -3,6 +3,7 @@ import Landing from './components/Landing'
 import Visualizer from './components/Visualizer'
 import Controls from './components/Controls'
 import Transport from './components/Transport'
+import { getPresetNames } from './presets'
 
 function App() {
   const [audioContext, setAudioContext] = useState(null)
@@ -10,45 +11,44 @@ function App() {
   const [analyser, setAnalyser] = useState(null)
   const [isActive, setIsActive] = useState(false)
   const [inputMode, setInputMode] = useState('mic') // 'mic' | 'file'
-  const [preset, setPreset] = useState('Neon Spectrum')
+  const [preset, setPreset] = useState('Glacier')
   const [controls, setControls] = useState({
     sensitivity: 0.65,
     smoothing: 0.4,
-    bloom: 0.75,
+    bloom: 0.55,
     trailLength: 0.5,
     particleDensity: 0.6,
     onsetRings: true,
-    pitchToColor: true,
+    vibratoResponse: true,
   })
 
   const handleStart = useCallback(async (mode, file = null) => {
     try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext
       const ctx = new AudioContextClass()
-      
+
       const analyserNode = ctx.createAnalyser()
       analyserNode.fftSize = 2048
       analyserNode.smoothingTimeConstant = 0.8
-      
+
       let source
       if (mode === 'mic') {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         source = ctx.createMediaStreamSource(stream)
         source.connect(analyserNode)
       } else if (mode === 'file' && file) {
-        // File handling - decode and play
         const arrayBuffer = await file.arrayBuffer()
         const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
         source = ctx.createBufferSource()
         source.buffer = audioBuffer
         source.loop = true
         source.connect(analyserNode)
-        source.connect(ctx.destination) // Also connect to output for playback
+        source.connect(ctx.destination)
         source.start(0)
       } else {
         return
       }
-      
+
       setAudioContext(ctx)
       setAudioSource(source)
       setAnalyser(analyserNode)
@@ -81,7 +81,7 @@ function App() {
   }
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0a0f] overflow-hidden">
+    <div className="relative w-full h-screen bg-bg-deep overflow-hidden">
       {/* Main Visualizer Canvas */}
       <div className="absolute inset-0">
         <Visualizer
@@ -94,26 +94,36 @@ function App() {
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 h-16 z-30 px-6
         flex items-center justify-between
-        bg-black/50 backdrop-blur-xl border-b border-white/5">
+        bg-black/45 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center
+            bg-gradient-to-br from-accent-glacier/30 to-accent-tide/20
+            border border-white/10">
+            <svg className="w-4 h-4 text-accent-glacier" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                d="M12 3l3 5h-2v6h-2V8H9l3-5zm-7 12l3.5 6h11L23 15M5 15l-2 6h18" />
             </svg>
           </div>
-          <span className="font-black tracking-tight text-white text-xl">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Neon Visualizer</span>
+          <span className="font-light tracking-tight text-text-primary text-lg">Tideglass</span>
+          <span className="text-text-dim text-xs tracking-wider uppercase ml-1 hidden sm:inline">
+            {inputMode === 'mic' ? 'live' : 'file'}
           </span>
         </div>
 
         <select
           value={preset}
           onChange={(e) => setPreset(e.target.value)}
-          className="px-4 py-2 rounded-xl bg-white/5 border border-violet-500/30 text-violet-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+          aria-label="Preset"
+          className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10
+            text-text-primary text-sm
+            focus:outline-none focus:ring-2 focus:ring-[rgba(142,184,201,0.4)] focus:border-accent-glacier/50
+            hover:bg-bg-surfaceHover transition-colors"
         >
-          <option value="Neon Spectrum">Neon Spectrum</option>
-          <option value="Aurora Ribbons">Aurora Ribbons</option>
-          <option value="Cyber Rosette">Cyber Rosette</option>
+          {getPresetNames().map(name => (
+            <option key={name} value={name} className="bg-bg-deep text-text-primary">
+              {name}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -138,4 +148,3 @@ function App() {
 }
 
 export default App
-

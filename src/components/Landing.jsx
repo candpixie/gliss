@@ -20,41 +20,49 @@ const Landing = ({ onStart }) => {
   }
 
   return (
-    <div className="relative w-full h-screen bg-[#0a0a0f] overflow-hidden flex items-center justify-center">
-      {/* Aurora Background */}
+    <div className="relative w-full h-screen bg-bg-deep overflow-hidden flex items-center justify-center">
+      {/* Cold ambient glow — moonlit, not blacklight */}
       <div className="absolute inset-0">
-        <div className="absolute top-[-10%] left-[20%] w-[800px] h-[600px] bg-violet-600/20 rounded-full blur-[150px] animate-pulse"
-          style={{ animationDuration: '4s' }} />
-        <div className="absolute bottom-[-5%] right-[15%] w-[700px] h-[500px] bg-fuchsia-600/15 rounded-full blur-[130px]" />
-        <div className="absolute top-[30%] right-[25%] w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] animate-pulse"
-          style={{ animationDuration: '6s', animationDelay: '2s' }} />
+        <div
+          className="absolute top-[-15%] left-[15%] w-[820px] h-[620px] rounded-full blur-[160px] animate-pulse"
+          style={{ background: 'rgba(93,181,185,0.10)', animationDuration: '8s' }}
+        />
+        <div
+          className="absolute bottom-[-10%] right-[10%] w-[720px] h-[520px] rounded-full blur-[140px]"
+          style={{ background: 'rgba(142,184,201,0.08)' }}
+        />
+        <div
+          className="absolute top-[35%] right-[28%] w-[420px] h-[420px] rounded-full blur-[110px] animate-pulse"
+          style={{ background: 'rgba(200,217,180,0.05)', animationDuration: '11s', animationDelay: '3s' }}
+        />
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 w-[480px] rounded-2xl p-8
-        bg-gradient-to-br from-white/[0.08] to-white/[0.02]
-        backdrop-blur-xl border border-white/10
-        shadow-[0_8px_32px_rgba(0,0,0,0.4)] text-center">
+      <div className="relative z-10 w-[480px] rounded-2xl p-10
+        bg-gradient-to-br from-white/[0.06] to-white/[0.015]
+        backdrop-blur-xl border border-white/[0.07]
+        shadow-frost text-center">
         <div className="space-y-8">
           {/* Logo */}
           <div className="flex justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center
-                shadow-[0_0_40px_rgba(168,85,247,0.4)]">
-                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                </svg>
-              </div>
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center
+              bg-gradient-to-br from-accent-glacier/30 to-accent-tide/20
+              border border-white/10
+              shadow-frost-glow">
+              <svg className="w-11 h-11 text-accent-glacier" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M12 3l3 5h-2v6h-2V8H9l3-5zm-7 12l3.5 6h11L23 15M5 15l-2 6h18" />
+              </svg>
             </div>
           </div>
 
           {/* Title */}
           <div className="space-y-3">
-            <h1 className="text-4xl font-black tracking-tight text-white">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400">Neon Visualizer</span>
+            <h1 className="text-5xl font-light tracking-tight text-text-primary">
+              Tideglass
             </h1>
-            <p className="text-violet-300/70 text-lg font-light">
-              Turn your playing into live neon visuals.
+            <p className="text-text-muted text-base font-light">
+              An audio visualizer that listens like a musician.
             </p>
           </div>
 
@@ -62,28 +70,30 @@ const Landing = ({ onStart }) => {
           <div className="space-y-3">
             <button
               onClick={handleStartWithMic}
-              className="w-full px-8 py-4 rounded-xl font-semibold text-base
-                bg-gradient-to-r from-violet-600 via-violet-500 to-fuchsia-600 text-white
-                shadow-[0_0_20px_rgba(168,85,247,0.4),0_0_40px_rgba(168,85,247,0.2)]
-                hover:shadow-[0_0_30px_rgba(168,85,247,0.6),0_0_60px_rgba(168,85,247,0.3)]
-                hover:scale-[1.02] transition-all duration-300
+              className="w-full px-8 py-4 rounded-xl font-medium text-base
+                bg-accent-glacier/15 text-text-primary
+                border border-accent-glacier/40
+                hover:bg-accent-glacier/25 hover:border-accent-glacier/60
+                transition-all duration-200
                 flex items-center justify-center gap-3"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              <svg className="w-5 h-5 text-accent-glacier" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
-              Start with Microphone
+              Use microphone
             </button>
 
-            <label className="block w-full px-8 py-4 rounded-xl font-semibold text-base
-              bg-transparent text-violet-300 border border-violet-500/40
-              hover:bg-violet-500/10 hover:border-violet-400/60 hover:text-violet-200
-              hover:shadow-[0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 cursor-pointer
+            <label className="block w-full px-8 py-4 rounded-xl font-medium text-base
+              bg-transparent text-text-primary border border-white/10
+              hover:bg-bg-surfaceHover hover:border-white/20
+              transition-all duration-200 cursor-pointer
               flex items-center justify-center gap-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
-              Upload Audio File
+              Upload a file
               <input
                 type="file"
                 accept="audio/*"
@@ -93,13 +103,10 @@ const Landing = ({ onStart }) => {
             </label>
           </div>
 
-          {/* Privacy Note */}
-          <div className="flex items-center justify-center gap-2 text-xs text-violet-400/50">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            We only process audio locally.
-          </div>
+          {/* Note */}
+          <p className="text-xs text-text-dim leading-relaxed">
+            Best with monophonic instruments — recorder, flute, violin, voice.
+          </p>
         </div>
       </div>
 
@@ -111,39 +118,38 @@ const Landing = ({ onStart }) => {
             onClick={() => setShowPermissionModal(false)}
           />
           <div className="relative z-10 w-[420px] rounded-2xl p-8
-            bg-gradient-to-br from-white/[0.08] to-white/[0.02]
-            backdrop-blur-xl border border-white/10
-            shadow-[0_0_40px_rgba(168,85,247,0.15),inset_0_0_0_1px_rgba(168,85,247,0.1)]
-            text-center">
+            bg-gradient-to-br from-white/[0.06] to-white/[0.015]
+            backdrop-blur-xl border border-white/[0.07]
+            shadow-frost text-center">
             <div className="space-y-6">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-violet-500/20 flex items-center justify-center
-                shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-                <svg className="w-8 h-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-accent-glacier/15 border border-white/10
+                flex items-center justify-center">
+                <svg className="w-8 h-8 text-accent-glacier" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white mb-2">Microphone Access Required</h3>
-                <p className="text-sm text-violet-300/60 leading-relaxed">
-                  Neon Visualizer needs microphone access to visualize your audio in real-time.
-                  Your audio is never recorded or sent anywhere.
+                <h3 className="text-xl font-medium text-text-primary mb-2">Microphone access</h3>
+                <p className="text-sm text-text-muted leading-relaxed">
+                  Tideglass listens locally to track pitch, vibrato, and harmonics.
+                  Audio never leaves your device.
                 </p>
               </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowPermissionModal(false)}
-                  className="flex-1 px-6 py-3 rounded-xl font-semibold text-sm
-                    bg-transparent text-violet-300 border border-violet-500/40
-                    hover:bg-violet-500/10 transition-all duration-200"
+                  className="flex-1 px-6 py-3 rounded-xl font-medium text-sm
+                    bg-transparent text-text-muted border border-white/10
+                    hover:bg-bg-surfaceHover transition-all duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePermissionAllow}
-                  className="flex-1 px-6 py-3 rounded-xl font-semibold text-sm
-                    bg-gradient-to-r from-violet-600 via-violet-500 to-fuchsia-600 text-white
-                    shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]
-                    transition-all duration-200"
+                  className="flex-1 px-6 py-3 rounded-xl font-medium text-sm
+                    bg-accent-glacier/20 text-text-primary border border-accent-glacier/50
+                    hover:bg-accent-glacier/30 transition-all duration-200"
                 >
                   Allow
                 </button>
@@ -157,4 +163,3 @@ const Landing = ({ onStart }) => {
 }
 
 export default Landing
-
