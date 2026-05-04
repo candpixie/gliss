@@ -1,21 +1,21 @@
 # Gliss
 
-A browser music visualizer for acoustic instruments. Tracks pitch and vibrato, knows the difference between a sustained note and a breath attack.
+A browser music visualizer for acoustic instruments. For illustrating the transitions between pitch and vibrato and the difference between a sustained note and a breath attack.
 
-## What it does
+## Functions
 
-- Mic input or uploaded audio file
+- Mic input or uploaded audio file (.wav and .mp3 supported)
 - Real-time monophonic pitch tracking (pYIN, via [pitchy](https://www.npmjs.com/package/pitchy))
 - Vibrato detection for both kinds: frequency-modulated (strings, voice) and amplitude-modulated (winds, brass)
 - Harmonic vs percussive split (Fitzgerald median-filter HPSS), so breath attacks read differently from sustained tone
-- Three elemental visual presets: Glacier, Tide, Aurora
+- Three elemental visual presets: Glacier, Tide, Aurora 
 - Records the canvas and audio to WebM
 
 ## vs. ButterChurn
 
 ButterChurn descends from Milkdrop, the late-90s Winamp plugin. It looks great with EDM bass drops and synth pads. On a sustained recorder note or a violin tremolo it tends to fall flat, because it can't tell "vibrato at 5 Hz" apart from "loud part of the song."
 
-Gliss is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack is. The visuals respond to that, not just to amplitude.
+Gliss is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack of the note is. The visuals respond to that, not just to amplitude. Gliss = Glissando.
 
 ## Tech
 
