@@ -15,7 +15,7 @@ A browser music visualizer for acoustic instruments. For illustrating the transi
 
 ButterChurn descends from Milkdrop, the late-90s Winamp plugin. It looks great with EDM bass drops and synth pads. On a sustained recorder note or a violin tremolo it tends to fall flat, because it can't tell "vibrato at 5 Hz" apart from "loud part of the song."
 
-Gliss is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack of the note is. The visuals respond to that, not just to amplitude. Gliss = Glissando.
+Gliss is built for acoustic instruments: woodwind, brass, strings, voice. It knows what a held note is, what a vibrato is, what an attack of the note is. The visuals respond to that, not just to amplitude. Gliss is inspired by the word *Glissando*.
 
 ## Tech
 
