@@ -49,9 +49,9 @@ export class Scene {
       const renderPass = new RenderPass(this.scene, this.camera)
       this.composer.addPass(renderPass)
       this.bloomEffect = new BloomEffect({
-        intensity: controls?.bloom ?? this.preset.bloom ?? 0.55,
-        luminanceThreshold: 0.4,
-        luminanceSmoothing: 0.9,
+        intensity: controls?.bloom ?? this.preset.bloom ?? 1.1,
+        luminanceThreshold: 0.55,
+        luminanceSmoothing: 0.7,
       })
       this.composer.addEffect(this.bloomEffect)
       this.composer.setSize(width, height)
@@ -87,17 +87,23 @@ export class Scene {
   update(features, controls) {
     this.controls = controls
     if (this.bloomEffect) {
-      this.bloomEffect.intensity = controls?.bloom ?? this.preset.bloom ?? 0.55
+      this.bloomEffect.intensity = controls?.bloom ?? this.preset.bloom ?? 1.1
     }
     if (this.activeModule) {
       this.activeModule.update(features, controls)
     }
   }
 
+  setPointer(pointer) {
+    if (this.activeModule && typeof this.activeModule.setPointer === 'function') {
+      this.activeModule.setPointer(pointer)
+    }
+  }
+
   updateControls(controls) {
     this.controls = controls
     if (this.bloomEffect) {
-      this.bloomEffect.intensity = controls?.bloom ?? this.preset.bloom ?? 0.55
+      this.bloomEffect.intensity = controls?.bloom ?? this.preset.bloom ?? 1.1
     }
   }
 

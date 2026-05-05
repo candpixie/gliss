@@ -31,6 +31,7 @@ const FRAG = /* glsl */`
 
   uniform float uTime;
   uniform vec2  uResolution;
+  uniform vec2  uMouse;          // normalized 0..1, bottom-left origin
   uniform float uBandY;
   uniform float uWaverAmp;
   uniform float uBrightnessAM;
@@ -60,9 +61,14 @@ const FRAG = /* glsl */`
   // Single ribbon: thin sinuous band centered at y = cy, with FBM displacement.
   // Brighter near its center; thickness modulated by uWaverAmp.
   vec3 ribbon(vec2 uv, float cy, float seed, float bright){
-    float xPhase = uTime * 0.3 + seed * 13.0;
+    // Cursor-driven flow: mouse.x (-1..1) accelerates / reverses horizontal
+    // ribbon scroll, mouse.y nudges vertical bias.
+    float flow = (uMouse.x - 0.5) * 2.0;
+    float xPhase = uTime * (0.3 + flow * 0.7) + seed * 13.0;
     float displ = fbm(vec2(uv.x * 1.4 + xPhase, seed * 7.0)) - 0.5;
-    displ += sin(uv.x * 3.5 + uTime * (0.6 + seed)) * (0.05 + uWaverAmp * 0.35);
+    displ += sin(uv.x * 3.5 + uTime * (0.6 + seed) + flow * 1.4)
+           * (0.05 + uWaverAmp * 0.35);
+    cy += (uMouse.y - 0.5) * 0.18;
     float y = cy + displ * 0.45;
     float thickness = 0.05 + uWaverAmp * 0.22;
     float d = abs(uv.y - y) / thickness;
@@ -77,7 +83,9 @@ const FRAG = /* glsl */`
     vec3 col = mix(colLo, colHi, smoothstep(0.0, 1.0, intensity));
     // Sparing rose hint near apex on attack-spawned ribbons
     col = mix(col, ROSE, intensity * uRibbonSpawn * 0.25 * step(0.8, seed));
-    return col * pow(intensity, 1.4) * bright * 1.6;
+    // Brighter, sharper ribbon core. Higher exponent tightens the band;
+    // multiplier pushes the apex into bloom-bright territory.
+    return col * pow(intensity, 1.1) * bright * 2.6;
   }
 
   void main(){
@@ -85,16 +93,16 @@ const FRAG = /* glsl */`
     // map to 0..1 vertical; aurora lives mostly in upper half
     vec2 uv = vec2(frag.x, frag.y);
 
-    // Star background — sparse twinkly points
-    vec3 col = NAVY;
-    vec2 starGrid = floor(frag * uResolution.y * 0.55);
+    // Star background — denser, brighter, more variety in twinkle.
+    vec3 col = NAVY * 0.6;
+    vec2 starGrid = floor(frag * uResolution.y * 0.65);
     float s = hash(starGrid);
-    if(s > 0.992){
+    if(s > 0.985){
       float tw = 0.5 + 0.5 * sin(uTime * 1.7 + s * 31.0);
-      col += vec3(0.65, 0.72, 0.85) * (s - 0.992) * 220.0 * tw;
+      col += vec3(0.85, 0.92, 1.05) * (s - 0.985) * 360.0 * tw;
     }
-    // Subtle horizon glow at bottom
-    col += MINT * 0.04 * smoothstep(-0.4, -1.0, frag.y);
+    // Mint horizon glow on flux spike, cursor-modulated for taste.
+    col += MINT * (0.05 + 0.18 * uRibbonSpawn) * smoothstep(-0.4, -1.0, frag.y);
 
     // Ribbons — count driven by harmonicEnergy (1..5)
     float count = clamp(1.0 + floor(uRibbonCount * 4.0 + 0.5), 1.0, 5.0);
@@ -112,11 +120,14 @@ const FRAG = /* glsl */`
       col += ribbon(uv, cy, seed, b);
     }
 
-    // Vignette
-    float vig = smoothstep(1.5, 0.3, length(frag));
-    col *= 0.6 + 0.4 * vig;
+    // Stronger vignette — deeper edge falloff for cinematic dome feel.
+    float vig = smoothstep(1.6, 0.2, length(frag));
+    col *= 0.4 + 0.6 * vig;
 
-    gl_FragColor = vec4(col, 1.0);
+    // ACES filmic + gamma → ribbon cores bloom hard, sky goes deep.
+    vec3 mapped = clamp((col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14), 0.0, 1.0);
+    mapped = pow(mapped, vec3(1.0/2.2));
+    gl_FragColor = vec4(mapped, 1.0);
   }
 `
 
@@ -131,6 +142,7 @@ export class Aurora {
     this.uniforms = {
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uBandY: { value: 0.2 },
       uWaverAmp: { value: 0 },
       uBrightnessAM: { value: 0 },
@@ -174,6 +186,12 @@ export class Aurora {
     this.uniforms.uBrightnessAM.value = am
     this.uniforms.uRibbonSpawn.value = this.spawn
     this.uniforms.uRibbonCount.value = audio?.harmonicEnergy ?? 0
+  }
+
+  setPointer(pointer) {
+    if (!pointer) return
+    const m = pointer.mouse
+    if (m) this.uniforms.uMouse.value.set(m.x, m.y)
   }
 
   updatePreset(preset) {

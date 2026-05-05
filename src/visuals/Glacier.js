@@ -33,6 +33,7 @@ const FRAG = /* glsl */`
 
   uniform float uTime;
   uniform vec2  uResolution;
+  uniform vec2  uMouse;          // normalized 0..1, bottom-left origin
   uniform vec3  uHighlightAxis;
   uniform float uShimmer;
   uniform float uShimmerRate;
@@ -120,33 +121,52 @@ const FRAG = /* glsl */`
       vec3 p = ro + rd * hit;
       vec3 n = nrm(p);
 
-      // rim light
-      float rim = pow(1.0 - max(0.0, dot(n, -rd)), 2.5);
+      // Sharper rim (higher Fresnel exponent → thinner, brighter edge).
+      float ndv = max(0.0, dot(n, -rd));
+      float rim = pow(1.0 - ndv, 4.5);
+      // Specular hot-spot — sharp, bright, audio-modulated.
+      vec3  L = normalize(vec3(0.45, 0.85, 0.55));
+      vec3  H = normalize(L - rd);
+      float spec = pow(max(0.0, dot(n, H)), 64.0);
       // highlight cluster glow follows f0
       float cluster = exp(-pow((p.y - uHighlightAxis.y) * 1.5, 2.0));
       // refraction tint via internal scattering proxy
       float scatter = fbm(p * 1.6 + uTime * 0.05);
-      float trans = mix(0.18, 0.85, uTranslucency);
-      vec3 inner = mix(COLD_DEEP, COLD_TEAL, scatter);
+      float trans = mix(0.18, 0.95, uTranslucency);
+      vec3 inner = mix(COLD_DEEP * 0.6, COLD_TEAL, scatter);
 
       vec3 surf = mix(inner, COLD_ACCENT, rim);
-      surf = mix(surf, COLD_FROST, rim * cluster * (0.6 + 0.4 * uShimmer));
-      surf *= mix(0.7, 1.25, trans);
+      surf = mix(surf, COLD_FROST * 1.6, rim * cluster * (0.7 + 0.6 * uShimmer));
+      surf += COLD_FROST * spec * (1.2 + 2.5 * uShimmer);
+      surf *= mix(0.55, 1.55, trans);
 
-      // crack: white fissures on attack, decays via uCrack
-      float crackPattern = smoothstep(0.65, 0.95, fbm(p * 4.5 + vec3(uTime*0.4)));
-      surf += COLD_FROST * crackPattern * uCrack * 1.5;
+      // Secondary cursor-driven highlight: rim-modulated glow at the mouse.
+      vec2 mouseUv = (uMouse - 0.5) * vec2(uResolution.x / uResolution.y, 1.0);
+      float md = length(uv - mouseUv);
+      float mouseHL = exp(-md * md / 0.035);
+      surf = mix(surf, COLD_FROST * 1.8, rim * mouseHL * 1.0);
+      surf += COLD_FROST * mouseHL * spec * 1.4;
+
+      // crack: white fissures on attack, decays via uCrack — hotter & sharper.
+      float crackPattern = smoothstep(0.78, 0.96, fbm(p * 4.5 + vec3(uTime*0.4)));
+      surf += COLD_FROST * crackPattern * uCrack * 3.0;
 
       // depth fog
       float fog = exp(-hit * 0.18);
       col = mix(col, surf, fog);
     }
 
-    // subtle vignette
-    float vig = smoothstep(1.4, 0.4, length(uv));
-    col *= 0.55 + 0.45 * vig;
+    // Stronger vignette → deeper darks at edges.
+    float vig = smoothstep(1.5, 0.25, length(uv));
+    col *= 0.35 + 0.65 * vig;
 
-    gl_FragColor = vec4(col, 1.0);
+    // ACES filmic tone-map + gamma — gives bloom something to bite on
+    // and pushes the blacks low without crushing color.
+    vec3 x = col;
+    vec3 mapped = clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0);
+    mapped = pow(mapped, vec3(1.0/2.2));
+
+    gl_FragColor = vec4(mapped, 1.0);
   }
 `
 
@@ -163,6 +183,7 @@ export class Glacier {
     this.uniforms = {
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uHighlightAxis: { value: new THREE.Vector3(0, 0, 0) },
       uShimmer: { value: 0 },
       uShimmerRate: { value: 5.5 },
@@ -272,6 +293,12 @@ export class Glacier {
 
     this.particleUniforms.uTime.value = this.time
     this.particleUniforms.uBurst.value = this.particle
+  }
+
+  setPointer(pointer) {
+    if (!pointer) return
+    const m = pointer.mouse
+    if (m) this.uniforms.uMouse.value.set(m.x, m.y)
   }
 
   updatePreset(preset) {

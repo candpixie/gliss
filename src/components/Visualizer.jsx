@@ -13,7 +13,7 @@ function hzToNoteName(hz) {
   return `${name}${octave}`
 }
 
-const Visualizer = ({ analyser, preset, controls }) => {
+const Visualizer = ({ analyser, preset, controls, pointerRef }) => {
   const canvasRef = useRef(null)
   const sceneRef = useRef(null)
   const animationFrameRef = useRef(null)
@@ -47,6 +47,9 @@ const Visualizer = ({ analyser, preset, controls }) => {
           analyser.getFloatTimeDomainData(timeData)
 
           const features = extractFeatures(frequencyData, timeData)
+          if (pointerRef?.current) {
+            sceneRef.current.setPointer(pointerRef.current)
+          }
           sceneRef.current.update(features, controls)
 
           // Throttle hint updates to ~10 Hz so React doesn't re-render at 60 fps.

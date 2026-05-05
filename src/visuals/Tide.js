@@ -34,6 +34,9 @@ const FRAG = /* glsl */`
 
   uniform float uTime;
   uniform vec2  uResolution;
+  uniform vec2  uMouse;          // normalized 0..1, bottom-left origin
+  uniform vec2  uClickPos;       // last click in normalized 0..1
+  uniform float uClickAge;       // seconds since last click (large = no recent click)
   uniform float uWaveAmp;
   uniform float uCausticDensity;
   uniform float uStandingWavePeriod;
@@ -109,33 +112,69 @@ const FRAG = /* glsl */`
       ripple += uWaveAmp * 0.18 * sin(r * 6.0 - uTime * 4.0) * exp(-r * 0.4);
     }
 
+    // Click ripple — Evan-Wallace-style "drop a stone" at the cursor.
+    // Project click NDC into the same world-XZ plane as the rest of the surface,
+    // then add a decaying expanding ring centered there.
+    if (uClickAge < 6.0) {
+      vec2 clickFrag = vec2(
+        (uClickPos.x - 0.5) * (uResolution.x / uResolution.y),
+        uClickPos.y - 0.5
+      );
+      float clickDepth = max(0.001, horizon - clickFrag.y);
+      float clickWZ = 1.0 / clickDepth;
+      float clickWX = clickFrag.x * clickWZ * 1.4;
+      vec2 clickWP = vec2(clickWX, clickWZ);
+      float cr = length(wp - clickWP);
+      float decay = exp(-uClickAge * 0.9);
+      // Expanding wave-front: peak radius grows with age.
+      float front = exp(-pow(cr - uClickAge * 1.6, 2.0) * 0.6);
+      ripple += 0.32 * decay * front * sin(cr * 6.0 - uTime * 4.0);
+    }
+
     float h = ripple + standingWave(wp);
     float c = caustic(wp, uCausticDensity);
 
     // Underwater fog (bands.low) — adds blue haze to far water
     float fog = 1.0 - exp(-worldZ * (0.05 + uFogDensity * 0.25));
 
-    // Base water color
-    vec3 water = mix(MIDNIGHT, MOONCYAN, c + h * 0.5);
-    water = mix(water, MIDNIGHT * 1.2, fog * 0.7);
+    // Base water color — pushed darker so caustics & sparkle have somewhere
+    // to peak from. Caustic curve sharpened (higher exponent on c).
+    vec3 water = mix(MIDNIGHT * 0.5, MOONCYAN, pow(clamp(c + h*0.6, 0.0, 1.0), 1.4));
+    water = mix(water, MIDNIGHT * 0.4, fog * 0.85);
 
-    // Specular sparkle on crests (bands.high)
-    float crest = smoothstep(0.65, 0.98, c + h);
-    vec3 sparkle = SILVER * crest * (0.25 + uSparkle * 1.0);
+    // Specular sparkle on crests — much sharper threshold + brighter peaks.
+    float crest = smoothstep(0.78, 1.0, c + h);
+    crest = pow(crest, 1.8);
+    vec3 sparkle = (SILVER * 1.6 + FOAM * 0.7) * crest * (0.6 + uSparkle * 2.5);
     water += sparkle;
 
-    // Sky above horizon — soft gradient with subtle stars
-    vec3 sky = mix(MIDNIGHT * 0.8, MIDNIGHT + MOONCYAN * 0.06, smoothstep(horizon, 1.0, frag.y));
+    // Cursor "wake": cursor-induced sparkle wherever the pointer hovers
+    // over water — feels like a finger trailing through the surface.
+    if (uMouse.y < 0.62) {
+      vec2 mouseFrag = vec2(
+        (uMouse.x - 0.5) * (uResolution.x / uResolution.y),
+        uMouse.y - 0.5
+      );
+      float md = length(frag - mouseFrag);
+      float wake = exp(-md * md * 22.0);
+      water += FOAM * wake * 0.55;
+    }
+
+    // Sky above horizon — slightly darker base, brighter star pops.
+    vec3 sky = mix(MIDNIGHT * 0.55, MIDNIGHT + MOONCYAN * 0.10, smoothstep(horizon, 1.0, frag.y));
     float starSeed = hash(floor(frag * uResolution.y * 0.5));
-    if(starSeed > 0.997) sky += vec3(0.6) * (starSeed - 0.997) * 333.0;
+    if(starSeed > 0.996) sky += vec3(0.85, 0.92, 1.0) * (starSeed - 0.996) * 300.0;
 
     vec3 col = mix(sky, water, belowHorizon);
 
-    // Vignette
-    float vig = smoothstep(1.5, 0.3, length(frag));
-    col *= 0.55 + 0.45 * vig;
+    // Stronger vignette for cinematic edges.
+    float vig = smoothstep(1.6, 0.2, length(frag));
+    col *= 0.32 + 0.68 * vig;
 
-    gl_FragColor = vec4(col, 1.0);
+    // ACES filmic + gamma → richer blacks, blooming highlights.
+    vec3 mapped = clamp((col*(2.51*col+0.03))/(col*(2.43*col+0.59)+0.14), 0.0, 1.0);
+    mapped = pow(mapped, vec3(1.0/2.2));
+    gl_FragColor = vec4(mapped, 1.0);
   }
 `
 
@@ -147,9 +186,13 @@ export class Tide {
     this.smoothCurrent = new THREE.Vector2(0, 0)
 
     this.geometry = new THREE.PlaneGeometry(2, 2)
+    this.clickAge = 999
     this.uniforms = {
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
+      uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+      uClickPos: { value: new THREE.Vector2(0.5, 0.5) },
+      uClickAge: { value: 999 },
       uWaveAmp: { value: 0 },
       uCausticDensity: { value: 0 },
       uStandingWavePeriod: { value: 0 },
@@ -190,6 +233,9 @@ export class Tide {
     const vib = audio?.vibrato
     const standingPeriod = vib?.active ? Math.max(0.1, 1 / Math.max(0.5, vib.rateHz || 5)) : 0
 
+    this.clickAge += dt
+    this.uniforms.uClickAge.value = this.clickAge
+
     this.uniforms.uTime.value = this.time
     this.uniforms.uWaveAmp.value = Math.min(1.5, (audio?.rms ?? 0) * 3)
     this.uniforms.uCausticDensity.value = audio?.centroid ?? 0
@@ -197,6 +243,18 @@ export class Tide {
     this.uniforms.uCurrentDirection.value.copy(this.smoothCurrent)
     this.uniforms.uFogDensity.value = audio?.bands?.low ?? 0
     this.uniforms.uSparkle.value = audio?.bands?.high ?? 0
+  }
+
+  setPointer(pointer) {
+    if (!pointer) return
+    const m = pointer.mouse
+    if (m) this.uniforms.uMouse.value.set(m.x, m.y)
+    const click = pointer.click
+    if (click && click.serial !== this._lastClickSerial) {
+      this._lastClickSerial = click.serial
+      this.uniforms.uClickPos.value.set(click.x, click.y)
+      this.clickAge = 0
+    }
   }
 
   updatePreset(preset) {
