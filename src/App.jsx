@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Landing from './components/Landing'
 import Visualizer from './components/Visualizer'
 import Controls from './components/Controls'
@@ -12,6 +12,10 @@ function App() {
   const [isActive, setIsActive] = useState(false)
   const [inputMode, setInputMode] = useState('mic') // 'mic' | 'file'
   const [preset, setPreset] = useState('Glacier')
+  const pointerRef = useRef({
+    mouse: { x: 0.5, y: 0.5 },
+    click: { x: 0.5, y: 0.5, serial: 0 },
+  })
   const [controls, setControls] = useState({
     sensitivity: 0.65,
     smoothing: 0.4,
@@ -76,6 +80,31 @@ function App() {
     setControls(prev => ({ ...prev, [key]: value }))
   }, [])
 
+  useEffect(() => {
+    if (!isActive) return
+    const onPointerMove = (e) => {
+      const x = e.clientX / window.innerWidth
+      const y = 1 - e.clientY / window.innerHeight
+      pointerRef.current.mouse.x = Math.min(1, Math.max(0, x))
+      pointerRef.current.mouse.y = Math.min(1, Math.max(0, y))
+    }
+    const onPointerDown = (e) => {
+      const x = e.clientX / window.innerWidth
+      const y = 1 - e.clientY / window.innerHeight
+      pointerRef.current.click = {
+        x: Math.min(1, Math.max(0, x)),
+        y: Math.min(1, Math.max(0, y)),
+        serial: pointerRef.current.click.serial + 1,
+      }
+    }
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [isActive])
+
   if (!isActive) {
     return <Landing onStart={handleStart} />
   }
@@ -88,6 +117,7 @@ function App() {
           analyser={analyser}
           preset={preset}
           controls={controls}
+          pointerRef={pointerRef}
         />
       </div>
 
