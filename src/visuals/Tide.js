@@ -11,7 +11,7 @@ import * as THREE from 'three'
  * caustic math in a single fragment shader, and recolors to the cold
  * palette: midnight blue → moonlit cyan → silver foam.
  *
- * Uniforms (per docs/agent-prompts/lane-b-visuals.md):
+ * Uniforms:
  *   uWaveAmp           (float) ← rms              vertex displacement
  *   uCausticDensity    (float) ← centroid         log-mapped
  *   uStandingWavePeriod(float) ← vibrato.rateHz   sinusoidal interference

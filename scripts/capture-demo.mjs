@@ -11,9 +11,9 @@ import { writeFileSync } from 'node:fs'
 const { PNG } = pkg
 const BASE = process.env.BASE || 'http://localhost:5173'
 const PRESETS = ['Glacier', 'Tide', 'Aurora']
-const W = 600, H = 338
-const FRAMES_PER_PRESET = 26
-const FRAME_DELAY_MS = 70          // ~14 fps playback
+const W = 540, H = 304
+const FRAMES_PER_PRESET = 22
+const FRAME_DELAY_MS = 80          // ~12.5 fps playback
 const WARMUP_MS = 1100             // let the scene settle / bloom ramp
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
