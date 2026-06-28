@@ -2,6 +2,10 @@
 
 A browser music visualizer for acoustic instruments. For illustrating the transitions between pitch and vibrato and the difference between a sustained note and a breath attack.
 
+![Gliss presets reacting to a sustained note with vibrato — Glacier, Tide, Aurora](docs/demo.gif)
+
+> The three v1 presets (**Glacier · Tide · Aurora**) responding to a sustained tone with 5.5 Hz vibrato and recurring breath attacks.
+
 ## Functions
 
 - Mic input or uploaded audio file (.wav and .mp3 supported)
