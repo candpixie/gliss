@@ -40,15 +40,15 @@ Active development. v1 ships the three presets with mic input, file upload, and 
 
 ## Acknowledgments
 
-The three v1 visual presets are forks of open-source shaders. Each was ported to a Three.js `ShaderMaterial`, recolored to the cold palette, and rewired to read from the `AudioFrame` integration contract. Original authors below.
+Glacier is original GLSL (a Voronoi ice-sheet shader). Tide and Aurora are forks of open-source shaders, each ported to a Three.js `ShaderMaterial`, recolored to the cold palette, and rewired to read from the `AudioFrame` integration contract. Sources below.
 
 | Preset  | Source                                                                 | Author        | License           |
 | ------- | ---------------------------------------------------------------------- | ------------- | ----------------- |
-| Glacier | [Curious Crystal](https://www.shadertoy.com/view/slccDX)               | mrange        | CC BY-NC-SA 3.0   |
+| Glacier | original                                                               | —             | MIT (this repo)   |
 | Tide    | [WebGL Water](https://madebyevan.com/webgl-water/) ([source](https://github.com/evanw/webgl-water)) | Evan Wallace  | MIT               |
 | Aurora  | [Auroras](https://www.shadertoy.com/view/XtGGRt)                       | nimitz        | CC BY-NC-SA 3.0   |
 
-Two of the three sources are CC BY-NC-SA 3.0 (Shadertoy default). Gliss is non-commercial today; if commercial use is added later, those two presets need replacement or relicensing.
+Only Aurora is CC BY-NC-SA 3.0 (Shadertoy default). Gliss is non-commercial today; if commercial use is added later, that one preset needs replacement or relicensing.
 
 ## License
 

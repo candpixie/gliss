@@ -8,7 +8,7 @@ import * as THREE from 'three'
  * port keeps the layered ribbon-of-noise structure and the star layer, strips
  * the warm reds/yellows for the cool palette: navy → mint → pale rose → silver.
  *
- * Uniforms (per docs/agent-prompts/lane-b-visuals.md):
+ * Uniforms:
  *   uBandY        (float) ← f0                  log-mapped vertical position
  *   uWaverAmp     (float) ← vibrato.extentCents wider for strings/voice
  *   uBrightnessAM (float) ← vibrato.amDepth     woodwind/brass shimmer

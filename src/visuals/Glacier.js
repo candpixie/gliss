@@ -1,16 +1,14 @@
 import * as THREE from 'three'
 
 /**
- * Glacier — crystalline shards in a dark teal sea.
+ * Glacier — a screen-filling crystalline ice sheet.
  *
- * Forked from Shadertoy "Curious Crystal" by mrange
- * (https://www.shadertoy.com/view/slccDX, CC BY-NC-SA 3.0).
- * The original raymarches scattering media inside a refractive substance;
- * this port keeps that structure (refractive boundary + internal
- * volumetric scattering) but swaps constants for AudioFrame uniforms
- * and recolors to the cold palette: deep navy → ice teal → frost white.
+ * Original GLSL: drifting Voronoi ice plates with frost seams, faceted
+ * micro-detail, and a sparkle dusting, over a cold vertical depth gradient
+ * (deep navy → ice teal → frost white). Every pixel is glacier — no floating
+ * geometry. Driven by AudioFrame uniforms.
  *
- * Uniforms (per docs/agent-prompts/lane-b-visuals.md):
+ * Uniforms:
  *   uHighlightAxis (vec3)  ← f0 → vertical highlight position
  *   uShimmer       (float) ← vibrato active ? amDepth + extentCents/100 : 0
  *   uCrack         (float) ← flux, ease-out ~400ms
@@ -45,106 +43,88 @@ const FRAG = /* glsl */`
   const vec3 COLD_FROST  = vec3(0.910, 0.933, 0.961); // #e8eef5
   const vec3 COLD_ACCENT = vec3(0.557, 0.722, 0.788); // #8eb8c9
 
-  // Hash + noise (iq)
-  float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-  float noise(vec3 p){
-    vec3 i = floor(p); vec3 f = fract(p);
-    f = f*f*(3.0-2.0*f);
-    return mix(
-      mix(mix(hash(i+vec3(0,0,0)), hash(i+vec3(1,0,0)), f.x),
-          mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y),
-      mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)), f.x),
-          mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)), f.x), f.y),
-      f.z);
+  // Hash + value noise + fbm (2D, screen-space ice field)
+  float hash1(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  vec2  hash2(vec2 p){
+    p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+    return fract(sin(p) * 43758.5453);
   }
-  float fbm(vec3 p){
-    float v = 0.0; float a = 0.5;
-    for(int i = 0; i < 5; i++){ v += a*noise(p); p *= 2.03; a *= 0.5; }
+  float vnoise(vec2 p){
+    vec2 i = floor(p), f = fract(p);
+    f = f*f*(3.0-2.0*f);
+    float a = hash1(i),           b = hash1(i+vec2(1,0));
+    float c = hash1(i+vec2(0,1)), d = hash1(i+vec2(1,1));
+    return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
+  }
+  float fbm(vec2 p){
+    float v = 0.0, a = 0.5;
+    for(int i = 0; i < 5; i++){ v += a*vnoise(p); p *= 2.02; a *= 0.5; }
     return v;
   }
 
-  // Crystal SDF: union of rotated boxes → "shards"
-  float sdBox(vec3 p, vec3 b){ vec3 q = abs(p)-b; return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0); }
-  mat3 rot(vec3 a, float t){
-    float c = cos(t), s = sin(t); vec3 n = normalize(a);
-    return mat3(
-      c + (1.0-c)*n.x*n.x,        (1.0-c)*n.x*n.y - s*n.z,  (1.0-c)*n.x*n.z + s*n.y,
-      (1.0-c)*n.y*n.x + s*n.z,    c + (1.0-c)*n.y*n.y,      (1.0-c)*n.y*n.z - s*n.x,
-      (1.0-c)*n.z*n.x - s*n.y,    (1.0-c)*n.z*n.y + s*n.x,  c + (1.0-c)*n.z*n.z
-    );
-  }
-  float scene(vec3 p){
-    float d = 1e9;
-    // primary shard
-    vec3 q = rot(vec3(0.4,1.0,0.2), uTime*0.15) * p;
-    d = min(d, sdBox(q, vec3(0.55, 1.6, 0.55)));
-    // secondary cluster
-    vec3 r = rot(vec3(1.0,0.3,0.6), -uTime*0.11 + 1.2) * (p + vec3(1.4, -0.2, 0.6));
-    d = min(d, sdBox(r, vec3(0.35, 1.1, 0.35)));
-    vec3 s = rot(vec3(0.2,0.7,0.9), uTime*0.09 + 2.4) * (p + vec3(-1.5, 0.4, -0.4));
-    d = min(d, sdBox(s, vec3(0.30, 0.9, 0.30)));
-    // refractive wobble (vibrato shimmer)
-    float wob = uShimmer * 0.06 * sin(uTime * 6.2832 * uShimmerRate + p.y * 3.0);
-    return d - 0.05 + wob;
-  }
-  vec3 nrm(vec3 p){
-    vec2 e = vec2(0.0015, 0.0);
-    return normalize(vec3(
-      scene(p+e.xyy) - scene(p-e.xyy),
-      scene(p+e.yxy) - scene(p-e.yxy),
-      scene(p+e.yyx) - scene(p-e.yyx)));
+  // Voronoi ice plates → vec3(F1 dist, F2 dist, cell random). Cells drift slowly.
+  vec3 voronoi(vec2 x){
+    vec2 n = floor(x), f = fract(x);
+    float f1 = 8.0, f2 = 8.0; vec2 mg = vec2(0.0);
+    for(int j = -1; j <= 1; j++)
+    for(int i = -1; i <= 1; i++){
+      vec2 g = vec2(float(i), float(j));
+      vec2 o = hash2(n + g);
+      o = 0.5 + 0.5 * sin(uTime * 0.22 + 6.2831 * o);   // gentle plate drift
+      vec2 r = g + o - f;
+      float d = dot(r, r);
+      if(d < f1){ f2 = f1; f1 = d; mg = n + g + o; }
+      else if(d < f2){ f2 = d; }
+    }
+    return vec3(sqrt(f1), sqrt(f2), hash1(mg));
   }
 
   void main(){
     vec2 uv = (gl_FragCoord.xy - 0.5*uResolution.xy) / uResolution.y;
-    vec3 ro = vec3(0.0, 0.0, 4.5);
-    vec3 rd = normalize(vec3(uv, -1.4));
 
-    // Raymarch surface
-    float t = 0.0; float hit = -1.0;
-    for(int i = 0; i < 64; i++){
-      vec3 p = ro + rd * t;
-      float d = scene(p);
-      if(d < 0.001){ hit = t; break; }
-      t += d * 0.85;
-      if(t > 12.0) break;
-    }
+    // Domain-warp the whole field so plates read organic, not gridded.
+    // Vibrato adds a refractive horizontal shimmer.
+    float shim = uShimmer * 0.10 * sin(uTime * 6.2831 * uShimmerRate * 0.16 + uv.y * 4.0);
+    vec2 warp = vec2(fbm(uv*1.7 + uTime*0.03), fbm(uv*1.7 + 5.2 - uTime*0.025));
+    vec2 p = uv * 3.1 + (warp - 0.5) * 0.85 + vec2(shim, 0.0);
 
-    vec3 col = COLD_DEEP;
+    // Two scales of ice plates fill the entire frame.
+    vec3 v1 = voronoi(p);
+    vec3 v2 = voronoi(p * 2.4 + 11.0);
 
-    // background gradient + soft moonlit fog
-    float bgY = 0.5 - uv.y * 0.5;
-    col = mix(COLD_DEEP, COLD_DEEP + COLD_TEAL * 0.08, bgY);
+    // Cracks = thin seams where two plates meet (small F2-F1).
+    float edge1 = smoothstep(0.07, 0.0, v1.y - v1.x);
+    float edge2 = smoothstep(0.05, 0.0, v2.y - v2.x) * 0.55;
+    float cracks = clamp(edge1 + edge2, 0.0, 1.0);
 
-    if(hit > 0.0){
-      vec3 p = ro + rd * hit;
-      vec3 n = nrm(p);
+    // Per-plate ice tone + faceted micro-detail.
+    float plate = mix(0.30, 1.0, v1.z);
+    float facet = fbm(p * 3.2) * 0.5 + 0.5;
 
-      // rim light
-      float rim = pow(1.0 - max(0.0, dot(n, -rd)), 2.5);
-      // highlight cluster glow follows f0
-      float cluster = exp(-pow((p.y - uHighlightAxis.y) * 1.5, 2.0));
-      // refraction tint via internal scattering proxy
-      float scatter = fbm(p * 1.6 + uTime * 0.05);
-      float trans = mix(0.18, 0.85, uTranslucency);
-      vec3 inner = mix(COLD_DEEP, COLD_TEAL, scatter);
+    // Base vertical depth: deep navy up top, frosted toward the bottom.
+    float depth = clamp(0.5 - uv.y * 0.7, 0.0, 1.0);
+    vec3 col = mix(COLD_DEEP, COLD_DEEP + COLD_TEAL * 0.10, depth);
 
-      vec3 surf = mix(inner, COLD_ACCENT, rim);
-      surf = mix(surf, COLD_FROST, rim * cluster * (0.6 + 0.4 * uShimmer));
-      surf *= mix(0.7, 1.25, trans);
+    // Ice body — every pixel is glacier now.
+    vec3 ice = mix(COLD_DEEP, COLD_TEAL, plate * 0.85 * facet);
+    ice = mix(ice, COLD_ACCENT, pow(facet, 2.0) * 0.55);
+    ice *= mix(0.55, 1.25, uTranslucency);
+    col = mix(col, ice, 0.88);
 
-      // crack: white fissures on attack, decays via uCrack
-      float crackPattern = smoothstep(0.65, 0.95, fbm(p * 4.5 + vec3(uTime*0.4)));
-      surf += COLD_FROST * crackPattern * uCrack * 1.5;
+    // f0 → a glowing frost ridge that rides up/down with pitch.
+    float band = exp(-pow((uv.y - uHighlightAxis.y * 0.5) * 2.2, 2.0));
+    col += COLD_FROST * band * (0.12 + 0.30 * uShimmer);
 
-      // depth fog
-      float fog = exp(-hit * 0.18);
-      col = mix(col, surf, fog);
-    }
+    // Plate seams as frost lines; attacks flash them white.
+    col += COLD_FROST * cracks * (0.22 + uCrack * 1.5);
 
-    // subtle vignette
-    float vig = smoothstep(1.4, 0.4, length(uv));
-    col *= 0.55 + 0.45 * vig;
+    // Sparkle dusting on the ice.
+    float spark = smoothstep(0.86, 1.0, fbm(p * 6.5 - uTime * 0.12));
+    col += COLD_FROST * spark * 0.20;
+
+    // Soft vignette + fog.
+    float vig = smoothstep(1.55, 0.35, length(uv));
+    col *= 0.50 + 0.50 * vig;
 
     gl_FragColor = vec4(col, 1.0);
   }
