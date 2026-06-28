@@ -36,7 +36,7 @@ Open the URL Vite prints, allow mic, play.
 
 ## Status
 
-Active development. v1 ships the three presets with mic input, file upload, and a 30-second WebM export. Polyphonic tracking and an embeddable widget are on the roadmap, not in v1.
+Active development. v1 ships the three presets with mic input, file upload, and a WebM export (up to 90 s). Polyphonic tracking and an embeddable widget are on the roadmap, not in v1.
 
 ## Acknowledgments
 
