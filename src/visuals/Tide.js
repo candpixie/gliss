@@ -124,8 +124,13 @@ const FRAG = /* glsl */`
     vec3 sparkle = SILVER * crest * (0.25 + uSparkle * 1.0);
     water += sparkle;
 
-    // Sky above horizon — soft gradient with subtle stars
-    vec3 sky = mix(MIDNIGHT * 0.8, MIDNIGHT + MOONCYAN * 0.06, smoothstep(horizon, 1.0, frag.y));
+    // Sky above horizon — soft gradient with subtle stars + atmospheric glow
+    float skyT = smoothstep(horizon, 1.0, frag.y);
+    vec3 sky = mix(MIDNIGHT * 0.85, MIDNIGHT + MOONCYAN * 0.11, skyT);
+    // Moonlit haze hugging the horizon, brightest toward center — fills the
+    // upper frame so it doesn't read as empty black.
+    float glow = exp(-(frag.y - horizon) * 5.0) * (1.0 - skyT);
+    sky += MOONCYAN * glow * 0.20 * (0.55 + 0.45 * (1.0 - abs(frag.x)));
     float starSeed = hash(floor(frag * uResolution.y * 0.5));
     if(starSeed > 0.997) sky += vec3(0.6) * (starSeed - 0.997) * 333.0;
 
