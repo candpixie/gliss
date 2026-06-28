@@ -75,22 +75,23 @@ const PracticePanel = ({ telemetry }) => {
 }
 
 const Header = ({ telemetry }) => {
-  const anchor = telemetry?.anchor
+  // Live tuner reading vs. the nearest equal-tempered note (not the hold anchor).
+  const tuner = telemetry?.tuner
   const f0 = telemetry?.f0
-  const cents = telemetry?.cents
+  const cents = tuner?.cents
   return (
     <div className="flex items-baseline justify-between mb-3">
       <div className="flex items-baseline gap-2">
         <span aria-hidden="true" className="text-accent-glacier">♪</span>
         <span className="text-text-primary text-sm tracking-wide">
-          {anchor ? anchor.name : '—'}
+          {tuner ? tuner.name : '—'}
         </span>
         <span className="text-text-dim">
-          {anchor ? `${Math.round(anchor.hz)} Hz` : ''}
+          {tuner && f0 != null ? `${f0.toFixed(1)} Hz` : ''}
         </span>
       </div>
       <span className={`tabular-nums ${centsClass(cents)}`}>
-        {f0 != null && cents != null
+        {tuner && cents != null
           ? `${cents >= 0 ? '+' : ''}${Math.round(cents)}¢`
           : ''}
       </span>
@@ -98,11 +99,12 @@ const Header = ({ telemetry }) => {
   )
 }
 
+// In-tune ≤5¢ (aurora), close ≤15¢ (glacier), off otherwise.
 function centsClass(cents) {
   if (cents == null) return 'text-text-dim'
   const abs = Math.abs(cents)
-  if (abs <= HOLD_TOLERANCE_CENTS) return 'text-accent-aurora'
-  if (abs <= 50) return 'text-accent-glacier'
+  if (abs <= 5) return 'text-accent-aurora'
+  if (abs <= 15) return 'text-accent-glacier'
   return 'text-text-muted'
 }
 

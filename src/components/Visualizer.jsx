@@ -31,6 +31,18 @@ function makeAnchor(hz) {
   }
 }
 
+// True tuner: nearest equal-tempered note (A440) and signed cents off it.
+// Independent of the drifting hold-anchor, so it reads like a real tuner.
+function tunerReading(hz) {
+  const midi = midiFromHz(hz)
+  const noteHz = 440 * Math.pow(2, (midi - 69) / 12)
+  return {
+    name: midiToName(midi),
+    noteHz,
+    cents: 1200 * Math.log2(hz / noteHz),   // −50..+50
+  }
+}
+
 const Visualizer = ({ analyser, preset, controls }) => {
   const canvasRef = useRef(null)
   const sceneRef = useRef(null)
@@ -66,13 +78,17 @@ const Visualizer = ({ analyser, preset, controls }) => {
         const frequencyData = new Float32Array(analyser.frequencyBinCount)
         const timeData = new Float32Array(analyser.fftSize)
 
+        // Real hardware sample rate (commonly 48 kHz on macOS), not the 44.1 kHz
+        // default — pitchy needs the true rate or every note reads ~147¢ flat.
+        const sampleRate = analyser.context.sampleRate
+
         const animate = () => {
           if (!analyser || !sceneRef.current) return
 
           analyser.getFloatFrequencyData(frequencyData)
           analyser.getFloatTimeDomainData(timeData)
 
-          const features = extractFeatures(frequencyData, timeData)
+          const features = extractFeatures(frequencyData, timeData, sampleRate)
           sceneRef.current.update(features, controls)
 
           const now = performance.now()
@@ -131,6 +147,7 @@ const Visualizer = ({ analyser, preset, controls }) => {
                 anchor,
                 f0,
                 cents,
+                tuner: f0 != null ? tunerReading(f0) : null,
                 vibrato: vib?.active
                   ? { rateHz: vib.rateHz, extentCents: vib.extentCents }
                   : null,
