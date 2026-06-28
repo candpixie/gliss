@@ -4,6 +4,7 @@ import Visualizer from './components/Visualizer'
 import Controls from './components/Controls'
 import Transport from './components/Transport'
 import { getPresetNames } from './presets'
+import { resetFeatures } from './audio/Features'
 
 function App() {
   const [audioContext, setAudioContext] = useState(null)
@@ -26,6 +27,13 @@ function App() {
     try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext
       const ctx = new AudioContextClass()
+      // Browsers can start the context suspended; without this, file playback
+      // pushes into a stopped clock and the analyser only ever sees silence.
+      if (ctx.state === 'suspended') await ctx.resume()
+
+      // Clear the singleton feature extractor so a new session doesn't inherit
+      // the previous one's ring buffer / smoothing state.
+      resetFeatures()
 
       const analyserNode = ctx.createAnalyser()
       analyserNode.fftSize = 2048
