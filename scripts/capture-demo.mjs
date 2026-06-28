@@ -1,14 +1,29 @@
 // Capture a looping demo GIF of the three Gliss presets reacting to the
 // synthetic AudioFrame in visuals-test.html. Headless Chrome renders the real
 // Three.js scenes; frames are screenshotted and encoded to GIF in pure JS.
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
 import gifenc from 'gifenc'
 import pkg from 'pngjs'
+import { writeFileSync, existsSync } from 'node:fs'
 
 const { GIFEncoder, quantize, applyPalette } = gifenc
-import { writeFileSync } from 'node:fs'
-
 const { PNG } = pkg
+
+// puppeteer-core ships no browser; point it at an installed Chrome/Chromium.
+// Override with CHROME_PATH=... if yours lives elsewhere.
+const CHROME_CANDIDATES = [
+  process.env.CHROME_PATH,
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+].filter(Boolean)
+const executablePath = CHROME_CANDIDATES.find((p) => existsSync(p))
+if (!executablePath) {
+  console.error('No Chrome/Chromium found. Set CHROME_PATH=/path/to/chrome and retry.')
+  process.exit(1)
+}
 const BASE = process.env.BASE || 'http://localhost:5173'
 const PRESETS = ['Glacier', 'Tide', 'Aurora']
 const W = 540, H = 304
@@ -19,6 +34,7 @@ const WARMUP_MS = 1100             // let the scene settle / bloom ramp
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 const browser = await puppeteer.launch({
+  executablePath,
   headless: 'new',
   args: [
     '--use-gl=angle', '--use-angle=swiftshader',
