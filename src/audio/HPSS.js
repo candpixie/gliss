@@ -132,9 +132,10 @@ function clamp01(v) {
 function median(buf, len) {
   if (len === 0) return 0
   if (len === 1) return buf[0]
-  // Copy + sort the active prefix; len is small (≤ ~21) so this is cheap.
-  const copy = buf.slice(0, len)
-  copy.sort((a, b) => a - b)
+  // Sort the active prefix in place — `buf` is a reused scratch Float32Array
+  // (refilled by the caller before every call), so no per-call allocation.
+  // subarray() is a view onto the same memory; typed-array sort is numeric.
+  buf.subarray(0, len).sort()
   const mid = len >> 1
-  return len & 1 ? copy[mid] : 0.5 * (copy[mid - 1] + copy[mid])
+  return len & 1 ? buf[mid] : 0.5 * (buf[mid - 1] + buf[mid])
 }
