@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Scene } from '../visuals/Scene'
 import { extractFeatures } from '../audio/Features'
+import { midiFromHz, midiToName, tunerReading } from '../audio/pitchMath'
 import PracticePanel from './PracticePanel'
-
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 const TRACE_WINDOW_MS = 5000
 const TRACE_SAMPLE_INTERVAL_MS = 50   // ~20 Hz pitch trace samples
@@ -11,35 +10,12 @@ const READOUT_INTERVAL_MS = 100       // ~10 Hz React updates
 const HOLD_TOLERANCE_CENTS = 20
 const SILENCE_DROP_ANCHOR_MS = 600    // drop anchor after this much continuous silence
 
-function midiFromHz(hz) {
-  return Math.round(69 + 12 * Math.log2(hz / 440))
-}
-
-function midiToName(midi) {
-  if (midi < 0 || midi > 127) return null
-  const name = NOTE_NAMES[midi % 12]
-  const octave = Math.floor(midi / 12) - 1
-  return `${name}${octave}`
-}
-
 function makeAnchor(hz) {
   const midi = midiFromHz(hz)
   return {
     hz,                 // actual user pitch — what we measure hold against
     midi,
     name: midiToName(midi),
-  }
-}
-
-// True tuner: nearest equal-tempered note (A440) and signed cents off it.
-// Independent of the drifting hold-anchor, so it reads like a real tuner.
-function tunerReading(hz) {
-  const midi = midiFromHz(hz)
-  const noteHz = 440 * Math.pow(2, (midi - 69) / 12)
-  return {
-    name: midiToName(midi),
-    noteHz,
-    cents: 1200 * Math.log2(hz / noteHz),   // −50..+50
   }
 }
 
