@@ -9,7 +9,7 @@ A browser music visualizer for acoustic instruments. For illustrating the transi
 ## Functions
 
 - Mic input or uploaded audio file (.wav and .mp3 supported)
-- Real-time monophonic pitch tracking (pYIN, via [pitchy](https://www.npmjs.com/package/pitchy))
+- Real-time monophonic pitch tracking (McLeod Pitch Method, via [pitchy](https://www.npmjs.com/package/pitchy))
 - Vibrato detection for both kinds: frequency-modulated (strings, voice) and amplitude-modulated (winds, brass)
 - Harmonic vs percussive split (Fitzgerald median-filter HPSS), so breath attacks read differently from sustained tone
 - Three elemental visual presets: Glacier, Tide, Aurora 

@@ -32,7 +32,7 @@ interface AudioFrame {
   fftMag: Float32Array;     // 1024 bins, raw magnitude (post-AnalyserNode)
 
   // --- Music-aware features (NEW, to be added) ---
-  f0: number | null;        // Hz, monophonic pitch via pYIN; null when unvoiced
+  f0: number | null;        // Hz, monophonic pitch via MPM; null when unvoiced
   f0Confidence: number;     // 0..1
   vibrato: {
     active: boolean;        // hysteresis-gated
@@ -126,7 +126,7 @@ Each agent owns the listed files. Agents must NOT modify files outside their lan
 
 ### Lane A — Audio
 Owns: `src/audio/Analyser.js`, `src/audio/AudioInput.js`, `src/audio/Features.js`, **new:** `src/audio/F0Track.js`, `src/audio/Vibrato.js`, `src/audio/HPSS.js`
-- Implement pYIN-based monophonic f0 tracking (port or library — see SoundTouch/pitchy/aubio.js options)
+- Implement MPM-based monophonic f0 tracking via pitchy (pYIN was the original plan; see Pitch detection above)
 - Vibrato detector: from `f0` time series, find 4–8 Hz periodicity; compute extent in cents and amplitude-modulation depth on the fundamental
 - HPSS: Fitzgerald median-filter on a short rolling spectrogram → harmonic / percussive masks → energy sums
 - Output an `AudioFrame` per requestAnimationFrame tick
