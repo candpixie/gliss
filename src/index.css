@@ -25,6 +25,26 @@
   }
 }
 
+/* Landing intro: letters rise in one by one, then the copy fades up */
+@keyframes landing-rise {
+  from { opacity: 0; transform: translateY(0.25em); filter: blur(6px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes landing-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.landing-letter {
+  display: inline-block;
+  animation: landing-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.landing-fade {
+  animation: landing-fade 0.8s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-letter, .landing-fade { animation: none; }
+}
+
 @layer utilities {
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
