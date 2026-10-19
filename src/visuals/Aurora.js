@@ -64,7 +64,7 @@ const FRAG = /* glsl */`
     float displ = fbm(vec2(uv.x * 1.4 + xPhase, seed * 7.0)) - 0.5;
     displ += sin(uv.x * 3.5 + uTime * (0.6 + seed)) * (0.05 + uWaverAmp * 0.35);
     float y = cy + displ * 0.45;
-    float thickness = 0.05 + uWaverAmp * 0.22;
+    float thickness = 0.04 + uWaverAmp * 0.12;
     float d = abs(uv.y - y) / thickness;
     float intensity = exp(-d * d * 2.6);
     // Vertical falloff — ribbon brighter at top edge, fades to bottom
@@ -73,11 +73,11 @@ const FRAG = /* glsl */`
     // Color gradient: deep mint at base → pale silver-mint at apex.
     // Keep colored — never pure white — so ribbons read as aurora not smoke.
     vec3 colHi = mix(MINT, SILVER, 0.35 * seed);
-    vec3 colLo = MINT * 0.55;
+    vec3 colLo = vec3(0.24, 0.62, 0.48);
     vec3 col = mix(colLo, colHi, smoothstep(0.0, 1.0, intensity));
     // Sparing rose hint near apex on attack-spawned ribbons
     col = mix(col, ROSE, intensity * uRibbonSpawn * 0.25 * step(0.8, seed));
-    return col * pow(intensity, 1.4) * bright * 1.6;
+    return col * pow(intensity, 1.4) * bright;
   }
 
   void main(){
@@ -102,6 +102,7 @@ const FRAG = /* glsl */`
     bright *= 0.85 + 0.15 * sin(uTime * 6.0 * (0.5 + uBrightnessAM));
 
     // Primary ribbon at uBandY; siblings offset above/below
+    vec3 glow = vec3(0.0);
     for(int i = 0; i < 5; i++){
       if(float(i) >= count) break;
       float seed = fract(sin(float(i) * 12.9898) * 43758.5453);
@@ -109,8 +110,11 @@ const FRAG = /* glsl */`
       float cy = clamp(uBandY + offset, -0.6, 0.7);
       // Spawned ribbon: extra brightness on flux spike
       float b = bright * (1.0 + uRibbonSpawn * (0.4 + 0.6 * seed));
-      col += ribbon(uv, cy, seed, b);
+      glow += ribbon(uv, cy, seed, b);
     }
+    // Overlapping ribbons add up past 1.0 and clip to flat white. Roll them
+    // off softly instead so the mint survives where they cross.
+    col += 1.0 - exp(-glow * 1.6);
 
     // Vignette
     float vig = smoothstep(1.5, 0.3, length(frag));
